@@ -30,7 +30,7 @@
         posts.forEach(post => {
           const li = document.createElement('li');
           const a = document.createElement('a');
-          a.href = `posts/${post.file}`;
+          a.href = post.file;
           a.textContent = post.title;
           li.appendChild(a);
           postList.appendChild(li);
