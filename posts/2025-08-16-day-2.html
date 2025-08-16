@@ -1,183 +1,130 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Day 2 — Live DDoS Attack Map (C++-first) — Understanding Attack Types</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DDoS Attack Map Project – Day 2</title>
   <style>
-    :root {
-      --bg: #0b0f14;
-      --card: #121821;
-      --ink: #e8eef6;
-      --muted: #a7b3c7;
-      --accent: #6aa3ff;
-      --accent-2: #65e0c1;
-      --warn: #ffd580;
-      --code: #0f1520;
-      --border: #1e2836;
-    }
-    * { box-sizing: border-box; }
     body {
-      margin: 0; background: var(--bg); color: var(--ink);
-      font: 16px/1.6 system-ui, -apple-system, Segoe UI, Roboto, Inter, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
-      -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
+      background-color: #0d1117;
+      color: #e6edf3;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      line-height: 1.6;
+      margin: 0;
+      padding: 0;
     }
-    .wrap { max-width: 920px; margin: 0 auto; padding: 28px 18px 80px; }
     header {
-      background: linear-gradient(135deg, rgba(106,163,255,.12), rgba(101,224,193,.12));
-      border: 1px solid var(--border);
-      border-radius: 14px; padding: 22px 20px; margin: 18px 0 24px;
+      background: #161b22;
+      padding: 20px;
+      text-align: center;
+      border-bottom: 2px solid #30363d;
     }
-    header h1 { margin: 0 0 6px; font-size: 26px; line-height: 1.25; }
-    header p { margin: 6px 0 0; color: var(--muted); }
-    h2 {
-      margin: 26px 0 10px; font-size: 20px;
-      border-left: 4px solid var(--accent); padding-left: 10px;
+    header h1 {
+      margin: 0;
+      font-size: 1.8rem;
+      color: #58a6ff;
     }
-    h3 { margin: 18px 0 8px; font-size: 16px; color: var(--accent-2); }
-    p { margin: 10px 0; }
-    a { color: var(--accent); text-decoration: none; }
-    a:hover { text-decoration: underline; }
-    .card {
-      background: var(--card); border: 1px solid var(--border);
-      border-radius: 12px; padding: 16px; margin: 16px 0;
-    }
-    .kpi {
-      display: grid; grid-template-columns: repeat(auto-fit, minmax(180px,1fr)); gap: 10px;
-      margin: 8px 0;
-    }
-    .pill {
-      display: inline-block; padding: 2px 10px; border-radius: 999px;
-      background: rgba(106,163,255,.12); border: 1px solid var(--border); color: var(--ink); font-size: 12px;
-    }
-    ul, ol { margin: 10px 0 10px 22px; }
-    .callout {
-      border-left: 4px solid var(--accent-2); background: rgba(101,224,193,.08);
-      padding: 12px; border-radius: 10px; color: var(--ink);
-    }
-    .warn { border-left-color: var(--warn); background: rgba(255,213,128,.09); }
-    code, pre {
-      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
-      background: var(--code); color: #e9f1ff; border: 1px solid var(--border);
-      border-radius: 8px;
-    }
-    code { padding: 2px 6px; }
-    pre { padding: 12px; overflow: auto; }
     .meta {
-      display: flex; gap: 12px; flex-wrap: wrap; color: var(--muted); font-size: 13px; margin-top: 4px;
+      font-size: 0.9rem;
+      color: #8b949e;
+      margin-top: 5px;
+    }
+    main {
+      padding: 30px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h2 {
+      color: #58a6ff;
+      margin-top: 40px;
+    }
+    .card {
+      background: #161b22;
+      padding: 20px;
+      border-radius: 8px;
+      margin-top: 20px;
+      border: 1px solid #30363d;
+    }
+    .highlight {
+      background: #21262d;
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 0.95rem;
+      margin: 10px 0;
     }
     footer {
-      margin-top: 28px; font-size: 14px; color: var(--muted);
-      display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap;
-      border-top: 1px dashed var(--border); padding-top: 12px;
+      margin-top: 40px;
+      text-align: center;
+      font-size: 0.85rem;
+      color: #8b949e;
+      padding: 20px;
+      border-top: 1px solid #30363d;
     }
-    .next-prev a { margin-right: 10px; }
+    a {
+      color: #58a6ff;
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <header>
-      <h1>Live DDoS Attack Map (C++-first) — <span class="pill">Aim: Identify & Visualize Attacks, Not Mitigate</span></h1>
-      <p>Day 2 — Making sense of DDoS attack families: volumetric, protocol, and application-layer (L7). Today is all about <em>recognition</em>—how they behave, what they hit, and why they work.</p>
-      <div class="meta">
-        <span>📅 Daily Build Log</span>
-        <span>🧭 Consistency > Intensity</span>
-        <span>🛠️ C++ core, minimal Python only when necessary</span>
-      </div>
-    </header>
+  <header>
+    <h1>DDoS Attack Map Project – Day 2</h1>
+    <p class="meta">📅 Daily Build Log | 🧭 Exploring Attack Types | 🛠️ Building Foundations</p>
+  </header>
+  <main>
+    <h2>Why Study DDoS Attack Types?</h2>
+    <p>
+      On Day 1, we looked at what a DDoS attack is and how botnets coordinate. Today, we dig deeper into the different <strong>types of DDoS attacks</strong>. Understanding these matters because our future log generator will need to capture the <em>signatures</em> of these attacks. Without that context, logs are just raw noise.
+    </p>
 
-    <section class="card">
-      <h2>Why this matters (quick context)</h2>
-      <p>So many internet applications—from gaming servers and fintech APIs to streaming sites and campus portals—are at risk of DDoS. Our project’s job is to <strong>spot patterns fast</strong> and present them on a map clearly. To do that, we need a mental model of what an attack “looks like” on the wire and at the server.</p>
-      <div class="kpi">
-        <div class="callout"><strong>Volumetric</strong> → bandwidth pipe gets clogged (e.g., UDP/DNS/NTP amplification).</div>
-        <div class="callout"><strong>Protocol</strong> → state tables/CPU get clogged (e.g., TCP SYN floods, ICMP tricks).</div>
-        <div class="callout"><strong>Application (L7)</strong> → looks legit but exhausts app/DB (e.g., HTTP floods, Slowloris).</div>
-      </div>
-    </section>
+    <h2>1. Volumetric Attacks</h2>
+    <div class="card">
+      <p>
+        These are the <em>brute force</em> of the DDoS world. Attackers overwhelm the target’s <strong>bandwidth capacity</strong> by sending massive amounts of traffic. Imagine trying to pour a river through a garden hose.
+      </p>
+      <div class="highlight">Example: <strong>DNS Amplification</strong> → attacker spoofs victim’s IP, queries open DNS servers. The DNS replies (50x–100x bigger than the query) flood the victim, exhausting bandwidth.</div>
+      <p>
+        Here, the victim never asked for these replies, but they arrive anyway. It’s like thousands of packages arriving at your house addressed in your name, though you never ordered them.
+      </p>
+    </div>
 
-    <section class="card">
-      <h2>Volumetric attacks — the “firehose” 💥</h2>
-      <h3>DNS / NTP Amplification (UDP spoofing)</h3>
-      <ul>
-        <li><strong>The trick:</strong> attacker forges the source IP to be the victim’s and sends tiny requests to reflectors (DNS/NTP). Reflectors return <em>huge</em> replies to the victim.</li>
-        <li><strong>Why it bites:</strong> UDP has no handshake, so spoofing is trivial; responses are 10×–100× larger → bandwidth melts.</li>
-        <li><strong>Your mental image:</strong> “I send a postcard with your address; the world ships you refrigerators.”</li>
-      </ul>
-      <div class="callout warn"><strong>Key identification hint:</strong> Massive inbound UDP from many legit servers (resolvers/NTPs), with <em>no matching outbound requests</em> from the victim. That asymmetry is a flag we’ll later encode in our detector.</div>
-    </section>
+    <h2>2. Protocol Attacks</h2>
+    <div class="card">
+      <p>
+        Instead of flooding bandwidth, protocol attacks drain the <strong>resources that manage connections</strong> like memory tables, firewalls, and load balancers.
+      </p>
+      <div class="highlight">Example: <strong>SYN Flood</strong> → attacker sends TCP “SYN” requests but never completes the handshake. The server holds thousands of half-open connections in memory until it runs out of slots.</div>
+      <p>
+        Genuine users then find the server “busy” because all the doors are half-open and none can close. It’s not about traffic size here, but about exploiting the rules of the TCP handshake.
+      </p>
+    </div>
 
-    <section class="card">
-      <h2>Protocol attacks — the “rule benders” 🧩</h2>
-      <h3>SYN Flood</h3>
-      <ul>
-        <li><strong>3-way handshake abuse:</strong> flood with SYNs, never send final ACK → server holds thousands of half-open connections.</li>
-        <li><strong>Impact:</strong> saturates the backlog table (memory/CPU), so real users can’t connect.</li>
-      </ul>
-      <h3>ICMP Smurf / Ping Flood</h3>
-      <ul>
-        <li><strong>Smurf:</strong> spoof victim’s IP and ping a network broadcast → everyone replies to the victim (amplification).</li>
-        <li><strong>Ping flood:</strong> raw ICMP volume; simpler but noisy.</li>
-      </ul>
-      <div class="callout"><strong>Identification hint:</strong> SYN/ACK mismatch, high SYN without ACK completion; abnormal ICMP reply storms targeting one host.</div>
-    </section>
+    <h2>3. Application Layer Attacks</h2>
+    <div class="card">
+      <p>
+        These are the most subtle. The attacker behaves like a <strong>real user</strong> — sending valid HTTP requests or slow trickles of data — but in a way that <strong>drains CPU and memory</strong>.
+      </p>
+      <div class="highlight">Example: <strong>HTTP Flood</strong> → attacker sends millions of normal-looking page requests, forcing the server to render content and query databases until it collapses.</div>
+      <p>
+        Because each request looks legitimate, defenders can’t easily tell bots from humans. Filtering too aggressively risks blocking real users.
+      </p>
+    </div>
 
-    <section class="card">
-      <h2>Application-layer (L7) — the “polite overload” 🧠</h2>
-      <h3>HTTP Floods &amp; Slowloris</h3>
-      <ul>
-        <li><strong>HTTP flood:</strong> looks like real traffic (GET/POST/search), but at bot speed/scale → app/DB melt.</li>
-        <li><strong>Slowloris:</strong> many connections, headers dripped slowly → threads stay busy doing “nothing.”</li>
-      </ul>
-      <div class="callout warn"><strong>Identification hint:</strong> timing/behavioral signals: no human “think time,” shallow navigation depth, repeated hot endpoints, odd header patterns.</div>
-    </section>
+    <h2>Our Realization Today</h2>
+    <p>
+      Each protocol — UDP, TCP, HTTP — <strong>defines the shape of the attack</strong>. Volumetric floods choke bandwidth, protocol attacks drain connection slots, and application attacks disguise themselves as normal traffic. Together, they paint the diverse threat landscape our project needs to account for.
+    </p>
 
-    <section class="card">
-      <h2>Today’s realizations (the “aha!” shelf) ✨</h2>
-      <ul>
-        <li><strong>Protocols define attack shape:</strong> UDP enables spoof + reflect; TCP enables state exhaustion; HTTP enables “expensive but legit” requests.</li>
-        <li><strong>Servers wear the damage differently:</strong> network edge chokes for volumetric; kernel/listener tables choke for protocol; app tier/DB choke for L7.</li>
-        <li><strong>What we’ll visualize later:</strong> source clusters (reflectors vs. bots), protocol mix over time, anomaly spikes vs. baselines, and geo arcs to the victim.</li>
-      </ul>
-    </section>
-
-    <section class="card">
-      <h2>Hands-on breadcrumbs (still identification-only) 🧪</h2>
-      <ol>
-        <li><strong>Sketch a minimal label schema</strong> we’ll use in our mock logs:
-          <pre><code>{
-  "ts": "2025-08-16T10:03:12Z",
-  "src_ip": "203.0.113.7",
-  "dst_ip": "198.51.100.10",
-  "proto": "UDP",
-  "dst_port": 53,
-  "size_bytes": 1240,
-  "flag": "REFLECTED_DNS_AMP_HINT",  // identification note
-  "note": "asymmetry inbound&gt;outbound; DNS pattern"
-}</code></pre>
-        </li>
-        <li><strong>Make yourself a quick “tell board”</strong> (just a text file) listing cues you now recognize:
-          <ul>
-            <li>Volumetric: heavy UDP to 53/123 inbound; many reflectors; high bytes per packet.</li>
-            <li>Protocol: SYN spikes, low ACK completion; ICMP reply storms.</li>
-            <li>L7: superhuman request timing; hot endpoint concentration.</li>
-          </ul>
-        </li>
-      </ol>
-    </section>
-
-    <section class="card">
-      <h2>What’s next (Day 3 preview) 🔭</h2>
-      <p>Tomorrow we’ll answer: <strong>“What does a DDoS log actually look like?”</strong> We’ll define concrete fields (timestamp, IPs, proto/port, packet size, rate, hint flags) and ship a tiny <em>mock log generator</em> that produces realistic bursts you can parse in C++.</p>
-    </section>
-
-    <footer>
-      <div class="next-prev">
-        <a href="../index.html">← Back to Home</a>
-        <a href="day-3.html">Next: Log Anatomy &amp; Mock Generator →</a>
-      </div>
-      <div>© YourName — “Live DDoS Attack Map” build log</div>
-    </footer>
-  </div>
+    <h2>Next Steps</h2>
+    <p>
+      Tomorrow (Day 3), we’ll stop talking theory and start building: <strong>what does a DDoS log actually look like?</strong> Fields like timestamp, IP, attack type, and packet size will become the building blocks of our <em>mock log generator</em> in C++.
+    </p>
+  </main>
+  <footer>
+    <p>Part of my daily DDoS Attack Map Project 🚀 | <a href="index.html">Back to Index</a></p>
+  </footer>
 </body>
 </html>
