@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DDoS Visualiser – Day 3</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 40px; line-height: 1.6; background: #f9f9f9; }
+    h1, h2, h3 { color: #222; }
+    code, pre { background: #eee; padding: 4px 8px; border-radius: 4px; display: block; margin: 8px 0; }
+    .highlight { background: #dff0d8; padding: 10px; border-left: 4px solid #3c763d; margin: 20px 0; }
+    .error { background: #f2dede; padding: 10px; border-left: 4px solid #a94442; margin: 20px 0; }
+    ul { margin-left: 20px; }
+  </style>
+</head>
+<body>
+  <h1>Project DDoS Visualiser – Day 3: From Packets to Logs</h1>
+
+  <h2>🛡️ Project Aim Recap</h2>
+  <p>We’re building a <strong>C++ powered DDoS Attack Visualiser</strong> that can generate, read, and later map simulated attack logs into meaningful visuals.</p>
+
+  <h2>🌍 Where We Left Off</h2>
+  <ul>
+    <li>Day 1: Understood what DDoS is, and how botnets + C2 work.</li>
+    <li>Day 2: Broke down attack types (Volumetric, Protocol, Application-layer).</li>
+    <li><strong>Day 3: Moved from theory → implementation by writing our mock DDoS log generator in C++.</strong></li>
+  </ul>
+
+  <h2>⚙️ The Deliverable</h2>
+  <ul>
+    <li>✅ Generate fake log entries</li>
+    <li>✅ Save them to <code>ddos_log.txt</code></li>
+    <li>✅ Push the working code on GitHub</li>
+  </ul>
+
+  <h2>🧩 Breaking Down the Functions</h2>
+  <p>This is how I understood them piece by piece:</p>
+  <ul>
+    <li><strong>getRandomIP()</strong> → creates IPv4 addresses using random distribution.</li>
+    <li><strong>getTimestamp()</strong> → grabs current time (epoch → local → formatted).</li>
+    <li><strong>getRandomAttackType()</strong> → picks one attack type from a vector.</li>
+    <li><strong>generateLogEntry()</strong> → assembles log line: <code>timestamp | ip | attack_type</code>.</li>
+    <li><strong>main()</strong> → loops and writes entries into <code>ddos_log.txt</code>.</li>
+  </ul>
+
+  <h2>🐞 Debugging Story</h2>
+  <div class="error">
+    <p>Got hit with <code>undefined reference</code> errors — caused by tiny typos (<code>getTimestamps</code> vs <code>getTimestamp</code>).</p>
+    <p>Lesson: Declarations, definitions, and calls must <strong>match exactly</strong> in C++.</p>
+  </div>
+
+  <h2>📝 Sample Output Log</h2>
+  <pre>
+2025-08-18 21:48:01 | 185.22.109.94 | SYN Flood
+2025-08-18 21:48:02 | 203.88.14.56 | UDP Flood
+2025-08-18 21:48:02 | 45.199.73.11 | ICMP Flood
+  </pre>
+
+  <h2>🚀 Key Realisations</h2>
+  <ul>
+    <li>Servers log everything (timestamps, IPs, request types).</li>
+    <li>We recreated the <em>victim’s perspective</em> of a DDoS.</li>
+    <li>Debugging taught me more about compilers + linkers than any doc.</li>
+  </ul>
+
+  <h2>🔮 What’s Next</h2>
+  <p>Day 4 → Build the Log Reader in C++ and parse these entries line by line.</p>
+
+  <div class="highlight">
+    <strong>Final Thought:</strong> Today wasn’t about speed — it was about <em>traceback thinking</em>, breaking functions until I could teach them back to myself.
+  </div>
+</body>
+</html>
