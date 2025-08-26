@@ -46,32 +46,62 @@
 <body>
   <h1>Week 1 Wrap-Up: From Logs to Lessons</h1>
 
-  <p>This week was not perfect — in fact, I barely closed the last deliverables by the very end of Day 7. But that’s how real-world projects feel: <b>debugging takes longer, understanding takes patience, and consistency beats speed.</b></p>
+  <p>This week was not perfect — in fact, I closed the last deliverables only at the very end of Day 7. But that’s how real-world projects feel: <b>debugging takes longer, understanding takes patience, and consistency beats speed.</b></p>
 
   <h2>✅ What We Achieved This Week</h2>
   <ul>
     <li>Understood the <b>core types of DDoS attacks</b> (Volumetric, Protocol, Application-layer).</li>
-    <li>Built a <b>Mock DDoS Log Generator</b> in C++ using:
-      <ul>
-        <li><code>&lt;random&gt;</code> for generating IPs and attack types.</li>
-        <li><code>&lt;ctime&gt;</code> and <code>std::put_time</code> for timestamps.</li>
-        <li><code>&lt;fstream&gt;</code> for writing logs into <code>ddos_logs.txt</code>.</li>
-      </ul>
-    </li>
-    <li>Designed the foundation of a <b>Log Parser</b>:
-      <ul>
-        <li>Using <code>std::ifstream</code> to read logs line by line.</li>
-        <li><code>std::stringstream</code> and <code>getline</code> with delimiters to split logs into <code>timestamp | IP | attack type</code>.</li>
-        <li>Implemented trimming logic to clean up whitespace.</li>
-      </ul>
-    </li>
+    <li>Built a <b>Mock DDoS Log Generator</b> in C++.</li>
+    <li>Designed the foundation of a <b>Log Parser</b> that can split logs into meaningful fields.</li>
+  </ul>
+
+  <h2>📚 Key Learnings This Week</h2>
+  <ul>
+    <li><b>Randomness in C++</b>: Learned how <code>std::random_device</code> seeds <code>std::mt19937</code>, which generates a deterministic but “random-looking” sequence.</li>
+    <li><b>Mapping ranges</b>: <code>std::uniform_int_distribution&lt;&gt;</code> takes that raw sequence and maps it into a desired range (like 0–255 for IP addresses).</li>
+    <li><b>Timestamps</b>: Understood how <code>std::time(nullptr)</code> gives epoch time, and how <code>std::localtime()</code> plus <code>std::put_time()</code> let us format it into a human-readable string.</li>
+    <li><b>File I/O</b>: Using <code>std::ofstream</code> to write logs, and <code>std::ifstream</code> + <code>std::getline()</code> to read them back line by line.</li>
+    <li><b>String Parsing</b>: Learned how <code>std::stringstream</code> can break a log line like
+      <code>2025-08-18 12:30:22 | 192.168.0.1 | SYN Flood</code>
+      into clean parts.</li>
+    <li><b>Whitespace Handling</b>: Built a trim function using <code>find_first_not_of</code> and <code>find_last_not_of</code> — a small detail but critical for clean parsing.</li>
   </ul>
 
   <div class="note">
-    <p><b>Reflection:</b> The hardest part wasn’t coding — it was <b>understanding how each function works in detail</b>. From <code>std::mt19937</code> random engines to how <code>time()</code> behaves with <code>nullptr</code>, every small detail stacked up into something usable.</p>
+    <p><b>Reflection:</b> The hardest part wasn’t writing the code — it was <b>tracing back the logic behind each line</b>. For example, realizing how <code>dist(gen)</code> picks a single mapped number from a huge random sequence, or how <code>time(nullptr)</code> uses <code>nullptr</code> as a “default behavior.” These small understandings made the code actually meaningful, not just executable.</p>
   </div>
 
-  <h2>📝 Code Highlight (Log Parser Core)</h2>
+  <h2>📝 Code Highlights & Insights</h2>
+
+  <h3>1. Random IP Generator</h3>
+  <div class="code">
+<pre>
+std::string getRandomIP(std::mt19937 &gen) {
+    std::uniform_int_distribution<> dist(0, 255);
+    return std::to_string(dist(gen)) + "." +
+           std::to_string(dist(gen)) + "." +
+           std::to_string(dist(gen)) + "." +
+           std::to_string(dist(gen));
+}
+</pre>
+  </div>
+  <p><b>Insight:</b> Each <code>dist(gen)</code> call pulls a fresh number from the generator, ensuring all 4 octets of the IP look random. The key “aha” moment was realizing how distribution <i>maps</i> the random sequence to the valid IP range.</p>
+
+  <h3>2. Timestamp Generator</h3>
+  <div class="code">
+<pre>
+std::string getTimestamp() {
+    auto t = std::time(nullptr);
+    auto tm = *std::localtime(&t);
+    std::ostringstream oss;
+    oss << std::put_time(&tm, "%Y-%m-%d %H:%M:%S");
+    return oss.str();
+}
+</pre>
+  </div>
+  <p><b>Insight:</b> The chain goes: epoch time → local struct → formatted string. Using <code>oss</code> (scratchpad) + <code>put_time</code> made it clear how raw time data turns into readable logs.</p>
+
+  <h3>3. Parsing Logs</h3>
   <div class="code">
 <pre>
 std::ifstream infile("ddos_logs.txt");
@@ -80,11 +110,12 @@ while (std::getline(infile, line)) {
     std::stringstream ss(line);
     std::string part;
     while (std::getline(ss, part, '|')) {
-        // trim & store each token (timestamp, IP, attack type)
+        // trim & store each token
     }
 }
 </pre>
   </div>
+  <p><b>Insight:</b> The nested <code>getline</code> was a breakthrough moment. First, read whole log lines. Then, split by the delimiter <code>'|'</code>. Finally, use trimming to clean extra spaces. That layering is what makes raw text structured.</p>
 
   <h2>🎯 Week 2 Ahead</h2>
   <p>Now that we can <b>generate</b> and <b>parse</b> logs, Week 2 is about <b>making sense of the data</b>: counting frequencies of attacks, spotting patterns, and setting up a base for visualization.</p>
