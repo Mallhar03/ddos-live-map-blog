@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DDoS Visualiser Project – Week 1 Wrap-Up</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 40px;
+      background-color: #f4f6f9;
+      color: #333;
+      line-height: 1.6;
+    }
+    h1, h2 {
+      color: #1a73e8;
+    }
+    .note {
+      background: #e8f0fe;
+      padding: 10px 15px;
+      border-left: 4px solid #1a73e8;
+      margin: 20px 0;
+    }
+    .code {
+      background: #272822;
+      color: #f8f8f2;
+      padding: 12px;
+      border-radius: 8px;
+      font-family: monospace;
+      overflow-x: auto;
+    }
+    a {
+      color: #1a73e8;
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    .footer {
+      margin-top: 30px;
+      font-size: 14px;
+      color: #555;
+    }
+  </style>
+</head>
+<body>
+  <h1>Week 1 Wrap-Up: From Logs to Lessons</h1>
+
+  <p>This week was not perfect — in fact, I barely closed the last deliverables by the very end of Day 7. But that’s how real-world projects feel: <b>debugging takes longer, understanding takes patience, and consistency beats speed.</b></p>
+
+  <h2>✅ What We Achieved This Week</h2>
+  <ul>
+    <li>Understood the <b>core types of DDoS attacks</b> (Volumetric, Protocol, Application-layer).</li>
+    <li>Built a <b>Mock DDoS Log Generator</b> in C++ using:
+      <ul>
+        <li><code>&lt;random&gt;</code> for generating IPs and attack types.</li>
+        <li><code>&lt;ctime&gt;</code> and <code>std::put_time</code> for timestamps.</li>
+        <li><code>&lt;fstream&gt;</code> for writing logs into <code>ddos_logs.txt</code>.</li>
+      </ul>
+    </li>
+    <li>Designed the foundation of a <b>Log Parser</b>:
+      <ul>
+        <li>Using <code>std::ifstream</code> to read logs line by line.</li>
+        <li><code>std::stringstream</code> and <code>getline</code> with delimiters to split logs into <code>timestamp | IP | attack type</code>.</li>
+        <li>Implemented trimming logic to clean up whitespace.</li>
+      </ul>
+    </li>
+  </ul>
+
+  <div class="note">
+    <p><b>Reflection:</b> The hardest part wasn’t coding — it was <b>understanding how each function works in detail</b>. From <code>std::mt19937</code> random engines to how <code>time()</code> behaves with <code>nullptr</code>, every small detail stacked up into something usable.</p>
+  </div>
+
+  <h2>📝 Code Highlight (Log Parser Core)</h2>
+  <div class="code">
+<pre>
+std::ifstream infile("ddos_logs.txt");
+std::string line;
+while (std::getline(infile, line)) {
+    std::stringstream ss(line);
+    std::string part;
+    while (std::getline(ss, part, '|')) {
+        // trim & store each token (timestamp, IP, attack type)
+    }
+}
+</pre>
+  </div>
+
+  <h2>🎯 Week 2 Ahead</h2>
+  <p>Now that we can <b>generate</b> and <b>parse</b> logs, Week 2 is about <b>making sense of the data</b>: counting frequencies of attacks, spotting patterns, and setting up a base for visualization.</p>
+
+  <div class="footer">
+    <p>← <a href="day-6.html">Previous: Log Parser Basics</a> | <a href="index.html">Back to Homepage</a></p>
+  </div>
+</body>
+</html>
